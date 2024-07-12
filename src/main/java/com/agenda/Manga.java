@@ -1,8 +1,10 @@
 package com.agenda;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.agenda.comparators.TomoComparator;
 import com.agenda.exceptions.CantTomosLimitException;
 import com.agenda.exceptions.TomoAlreadyExistException;
 
@@ -100,7 +102,12 @@ public class Manga{
             throw new CantTomosLimitException();
         }
         for (Tomo tomo : lista_tomos_tengo) {
-            if (tomo.getNombre().equals(nombre)) {
+            if (tomo.getNombre().toUpperCase().equals(nombre.toUpperCase())) {
+                throw new TomoAlreadyExistException();
+            }
+        }
+        for (Tomo tomo : lista_tomos_faltantes) {
+            if (tomo.getNombre().toUpperCase().equals(nombre.toUpperCase())) {
                 throw new TomoAlreadyExistException();
             }
         }
@@ -111,8 +118,13 @@ public class Manga{
         if (cant_tomos <= lista_tomos_faltantes.size()) {
             throw new CantTomosLimitException();
         }
+        for (Tomo tomo : lista_tomos_tengo) {
+            if (tomo.getNombre().toUpperCase().equals(nombre.toUpperCase())) {
+                throw new TomoAlreadyExistException();
+            }
+        }
         for (Tomo tomo : lista_tomos_faltantes) {
-            if (tomo.getNombre().equals(nombre)) {
+            if (tomo.getNombre().toUpperCase().equals(nombre.toUpperCase())) {
                 throw new TomoAlreadyExistException();
             }
         }
@@ -121,7 +133,7 @@ public class Manga{
 
     public void eliminar_tomo_obtenido(String nombre){
         for (Tomo tomo : lista_tomos_tengo) {
-            if (tomo.getNombre().equals(nombre)) {
+            if (tomo.getNombre().toUpperCase().equals(nombre.toUpperCase())) {
                 lista_tomos_tengo.remove(tomo);
                 return;
             }
@@ -130,11 +142,16 @@ public class Manga{
 
     public void eliminar_tomo_faltante(String nombre){
         for (Tomo tomo : lista_tomos_faltantes) {
-            if (tomo.getNombre().equals(nombre)) {
+            if (tomo.getNombre().toUpperCase().equals(nombre.toUpperCase())) {
                 lista_tomos_faltantes.remove(tomo);
                 return;
             }
         }
+    }
+
+    public void ordenar_tomos() {
+        Collections.sort(this.lista_tomos_tengo, new TomoComparator());
+        Collections.sort(this.lista_tomos_faltantes, new TomoComparator());
     }
 
     @Override
@@ -145,6 +162,4 @@ public class Manga{
                 + lista_tomos_faltantes + ", precio_total_esperado=" + precio_total_esperado
                 + ", precio_unitario_esperado=" + precio_unitario_esperado + "]";
     }
-
-    
 }

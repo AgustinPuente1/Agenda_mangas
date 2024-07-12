@@ -1,8 +1,10 @@
 package com.agenda;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.agenda.comparators.MangaComparator;
 import com.agenda.exceptions.CantTomosLimitException;
 import com.agenda.exceptions.MangaAlreadyExistException;
 import com.agenda.exceptions.MangaNotFoundException;
@@ -27,11 +29,14 @@ public class Agenda_mangas {
         this.costo_esperado_unitario = costo_esperado_unitario();
     }
 
-    public void crear_manga(String tituloM, int cant_mangas, int cant_tengo) throws MangaAlreadyExistException{
+    public void crear_manga(String tituloM, int cant_mangas, int cant_tengo) throws MangaAlreadyExistException, CantTomosLimitException{
         for (Manga manga : agenda) {
-            if (manga.getTitulo().equals(tituloM)) {
+            if (manga.getTitulo().toUpperCase().equals(tituloM.toUpperCase())) {
                 throw new MangaAlreadyExistException();
             }
+        }
+        if (cant_tengo > cant_mangas) {
+            throw new CantTomosLimitException();
         }
 
         Manga manga = new Manga(tituloM, cant_mangas, cant_tengo);
@@ -42,7 +47,7 @@ public class Agenda_mangas {
 
     public Manga buscar_manga(String nombrem) throws MangaNotFoundException{
         for (Manga manga : agenda) {
-            if (manga.getTitulo().equals(nombrem)) {
+            if (manga.getTitulo().toUpperCase().equals(nombrem.toUpperCase())) {
                 return manga;
             }
         }
@@ -55,17 +60,18 @@ public class Agenda_mangas {
 
     public void agregar_tomos_obtenidos(String titulo, String nombre, float precio) throws MangaNotFoundException, TomoAlreadyExistException, CantTomosLimitException{
         for (Manga manga : agenda) {
-            if (manga.getTitulo().equals(titulo)) {
+            if (manga.getTitulo().toUpperCase().equals(titulo.toUpperCase())) {
                 if (manga.getCant_tengo() <= manga.getLista_tomos_tengo().size()) {
                     throw new CantTomosLimitException();
                 }
                 for (Tomo tomo : manga.getLista_tomos_tengo()) {
-                    if (tomo.getNombre().equals(nombre)) {
+                    if (tomo.getNombre().toUpperCase().equals(nombre.toUpperCase())) {
                         throw new TomoAlreadyExistException();
                     }
                 }
                 manga.agregar_tomos_obtenidos(nombre, precio);
                 actualizar_totales();
+                ordenar_tomos();
                 JSONUtil.guardarAgenda(agenda);
                 return;
             }
@@ -75,17 +81,18 @@ public class Agenda_mangas {
 
     public void agregar_tomos_faltantes(String titulo, String nombre, float precio) throws MangaNotFoundException, TomoAlreadyExistException, CantTomosLimitException{
         for (Manga manga : agenda) {
-            if (manga.getTitulo().equals(titulo)) {
+            if (manga.getTitulo().toUpperCase().equals(titulo.toUpperCase())) {
                 if (manga.getCant_faltantes() <= manga.getLista_tomos_faltantes().size()) {
                     throw new CantTomosLimitException();
                 }
                 for (Tomo tomo : manga.getLista_tomos_faltantes()) {
-                    if (tomo.getNombre().equals(nombre)) {
+                    if (tomo.getNombre().toUpperCase().equals(nombre.toUpperCase())) {
                         throw new TomoAlreadyExistException();
                     }
                 }
                 manga.agregar_tomos_faltantes(nombre, precio);;
                 actualizar_totales();
+                ordenar_tomos();
                 JSONUtil.guardarAgenda(agenda);
                 return;
             }
@@ -113,84 +120,6 @@ public class Agenda_mangas {
         costo_esperado_unitario = costo_esperado_unitario();
 
         JSONUtil.guardarAgenda(agenda);
-    }
-
-    public void editar_manga(String titulo, int cant_mangas, int cant_tengo) {
-        for (Manga manga : agenda) {
-            if (manga.getTitulo().equals(titulo)) {
-                manga.setCant_tomos(cant_mangas);
-                manga.setCant_tengo(cant_tengo);
-                manga.setCant_faltantes(cant_mangas - cant_tengo);
-                actualizar_totales();
-                JSONUtil.guardarAgenda(agenda);
-                return;
-            }
-        }
-    }
-
-    public void editar_tomo_obtenido(String titulos, String nombre, String nuevo_nombre, float precio) {
-        for (Manga manga : agenda) {
-            if (manga.getTitulo().equals(titulos)) {
-                for (Tomo tomo : manga.getLista_tomos_tengo()) {
-                    if (tomo.getNombre().equals(nombre)) {
-                        tomo.setNombre(nuevo_nombre);
-                        tomo.setPrecio(precio);
-                        actualizar_totales();
-                        JSONUtil.guardarAgenda(agenda);
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    public void editar_tomo_faltante(String titulos, String nombre, String nuevo_nombre, float precio) {
-        for (Manga manga : agenda) {
-            if (manga.getTitulo().equals(titulos)) {
-                for (Tomo tomo : manga.getLista_tomos_faltantes()) {
-                    if (tomo.getNombre().equals(nombre)) {
-                        tomo.setNombre(nuevo_nombre);
-                        tomo.setPrecio(precio);
-                        actualizar_totales();
-                        JSONUtil.guardarAgenda(agenda);
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    public void eliminar_manga(String titulo) throws MangaNotFoundException {
-        for (Manga manga : agenda) {
-            if (manga.getTitulo().equals(titulo)) {
-                agenda.remove(manga);
-                JSONUtil.guardarAgenda(agenda);
-                return;
-            }
-        }
-        throw new MangaNotFoundException();
-    }
-
-    public void eliminar_tomo_obtenido(String titulo, String nombre) throws TomoNotFoundException {
-        for (Manga manga : agenda) {
-            if (manga.getTitulo().equals(titulo)) {
-                manga.eliminar_tomo_obtenido(nombre);
-                JSONUtil.guardarAgenda(agenda);
-                return;
-            }
-        }
-        throw new TomoNotFoundException();
-    }
-
-    public void eliminar_tomo_faltante(String titulo, String nombre) throws TomoNotFoundException {
-        for (Manga manga : agenda) {
-            if (manga.getTitulo().equals(titulo)) {
-                manga.eliminar_tomo_faltante(nombre);
-                JSONUtil.guardarAgenda(agenda);
-                return;
-            }
-        }
-        throw new TomoNotFoundException();
     }
 
     public float costo_total(){
@@ -226,7 +155,117 @@ public class Agenda_mangas {
         return costo_esperado_total / cant_mangas;
     }
 
+    public void editar_manga_nombre(String titulo, String nuevo_titulo) throws MangaAlreadyExistException {
+        for (Manga manga : agenda) {
+            if (manga.getTitulo().toUpperCase().equals(nuevo_titulo.toUpperCase())) {
+                throw new MangaAlreadyExistException();
+            }
+        }
+        for (Manga manga : agenda) {
+            if (manga.getTitulo().toUpperCase().equals(titulo.toUpperCase())) {
+                manga.setTitulo(nuevo_titulo);
+                JSONUtil.guardarAgenda(agenda);
+                return;
+            }
+        }
+    }
 
+    public void editar_manga(String titulo, int cant_mangas, int cant_tengo) throws CantTomosLimitException {
+        if (cant_tengo > cant_mangas) {
+            throw new CantTomosLimitException();
+        }
+        for (Manga manga : agenda) {
+            if (manga.getTitulo().toUpperCase().equals(titulo.toUpperCase())) {
+                manga.setCant_tomos(cant_mangas);
+                manga.setCant_tengo(cant_tengo);
+                manga.setCant_faltantes(cant_mangas - cant_tengo);
+                actualizar_totales();
+                JSONUtil.guardarAgenda(agenda);
+                return;
+            }
+        }
+    }
+
+    public void editar_tomo_obtenido(String titulo, String nombre, String nuevo_nombre, float precio) {
+        for (Manga manga : agenda) {
+            if (manga.getTitulo().toUpperCase().equals(titulo.toUpperCase())) {
+                for (Tomo tomo : manga.getLista_tomos_tengo()) {
+                    if (tomo.getNombre().toUpperCase().equals(nombre.toUpperCase())) {
+                        tomo.setNombre(nuevo_nombre);
+                        tomo.setPrecio(precio);
+                        actualizar_totales();
+                        JSONUtil.guardarAgenda(agenda);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    public void editar_tomo_faltante(String titulo, String nombre, String nuevo_nombre, float precio) {
+        for (Manga manga : agenda) {
+            if (manga.getTitulo().toUpperCase().equals(titulo.toUpperCase())) {
+                for (Tomo tomo : manga.getLista_tomos_faltantes()) {
+                    if (tomo.getNombre().toUpperCase().equals(nombre.toUpperCase())) {
+                        tomo.setNombre(nuevo_nombre);
+                        tomo.setPrecio(precio);
+                        actualizar_totales();
+                        JSONUtil.guardarAgenda(agenda);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    public void eliminar_manga(String titulo) throws MangaNotFoundException {
+        for (Manga manga : agenda) {
+            if (manga.getTitulo().toUpperCase().equals(titulo.toUpperCase())) {
+                agenda.remove(manga);
+                JSONUtil.guardarAgenda(agenda);
+                return;
+            }
+        }
+        throw new MangaNotFoundException();
+    }
+
+    public void eliminar_tomo_obtenido(String titulo, String nombre) throws TomoNotFoundException {
+        for (Manga manga : agenda) {
+            if (manga.getTitulo().toUpperCase().equals(titulo.toUpperCase())) {
+                manga.eliminar_tomo_obtenido(nombre);
+                JSONUtil.guardarAgenda(agenda);
+                return;
+            }
+        }
+        throw new TomoNotFoundException();
+    }
+
+    public void eliminar_tomo_faltante(String titulo, String nombre) throws TomoNotFoundException {
+        for (Manga manga : agenda) {
+            if (manga.getTitulo().toUpperCase().equals(titulo.toUpperCase())) {
+                manga.eliminar_tomo_faltante(nombre);
+                JSONUtil.guardarAgenda(agenda);
+                return;
+            }
+        }
+        throw new TomoNotFoundException();
+    }
+
+    public void ordenar_tomos() {
+        for (Manga manga : agenda) {
+            manga.ordenar_tomos();
+        }
+    }
+
+    public void ordenar_mangas() {
+        Collections.sort(agenda, new MangaComparator());
+    }
+
+
+
+
+
+    
 
 
 

@@ -22,4 +22,9 @@ public class Tomo{
     public void setPrecio(float precio) {
         this.precio = precio;
     }
+
+    @Override
+    public String toString() {
+        return "Tomo [nombre=" + nombre + ", precio=" + precio + "]";
+    }
 }

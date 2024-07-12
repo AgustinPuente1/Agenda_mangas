@@ -24,11 +24,18 @@ costo promedio class agenda
 costo total esperado class agenda
 costo promedio esperado class agenda
 cambiar las las class y agregar getters y setters
-
-Haciendo:
-transportar la info por el json
-
-To do list:
 COMPARACIONES DE NOMBRES CON UPPERS
 hacer que no se pueda poner un tomo en faltante y en obtenido a la vez
+transportar la info por el json
+ordenar tomos
+ordenar mangas
+verificar si se pueden poner más tomos obtenidos o faltantes
+editar nombre de manga
+
+
+Haciendo:
+
+
+To do list:
 interfaz grafica
+
