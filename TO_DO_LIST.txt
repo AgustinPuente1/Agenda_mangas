@@ -1,0 +1,41 @@
+titulo
+cant_tomos
+cant_tengo
+lista_tomos_tengo
+precio_total
+precio_promedio
+cant_faltantes
+lista_tomos_faltantes
+precio_total_esperado
+precio_unitario_esperado
+
+
+Listo:
+Agregar mangas
+actualizar los totales
+buscar un manga
+agregar los tomos a los manga 
+editar nombres y cant manga
+editar nombres y cant tomos obt y falt
+deletear manga
+deletear tomos
+costo total class agenda
+costo promedio class agenda
+costo total esperado class agenda
+costo promedio esperado class agenda
+cambiar las las class y agregar getters y setters
+COMPARACIONES DE NOMBRES CON UPPERS
+hacer que no se pueda poner un tomo en faltante y en obtenido a la vez
+transportar la info por el json
+ordenar tomos
+ordenar mangas
+verificar si se pueden poner más tomos obtenidos o faltantes
+editar nombre de manga
+
+
+Haciendo:
+
+
+To do list:
+interfaz grafica
+
